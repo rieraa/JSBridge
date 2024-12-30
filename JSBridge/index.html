@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSBridge Demo</title>
+    <style>
+        body { 
+            padding: 20px; 
+            font-family: -apple-system, sans-serif;
+            background-color: #f5f5f5;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button { 
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007AFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        #result {
+            margin-top: 30px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-height: 50px;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+        .device-info {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .device-info div:nth-child(odd) {
+            font-weight: bold;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSBridge Demo</h1>
+    
+    <div class="button-container">
+        <button onclick="callNative('Hello')">发送消息给原生</button>
+        <button onclick="callNative('GetDeviceInfo')">获取设备信息</button>
+    </div>
+    
+    <div id="result">等待操作...</div>
+
+    <script>
+        function callNative(action) {
+            window.webkit.messageHandlers.nativeMethod.postMessage({
+                'action': action,
+                'message': 'Message from JavaScript!',
+                'timestamp': new Date().getTime()
+            });
+        }
+
+        function nativeCallJs(message) {
+            try {
+                // 尝试解析JSON
+                const data = JSON.parse(message);
+                if (data.name) { // 判断是否为设备信息
+                    document.getElementById('result').innerHTML = `
+                        <div>设备信息：</div>
+                        <div class="device-info">
+                            <div>设备名称：</div><div>${data.name}</div>
+                            <div>设备型号：</div><div>${data.model}</div>
+                            <div>系统名称：</div><div>${data.systemName}</div>
+                            <div>系统版本：</div><div>${data.systemVersion}</div>
+                        </div>
+                        <div class="timestamp">时间：${new Date().toLocaleString()}</div>
+                    `;
+                }
+            } catch (e) {
+                // 普通消息
+                document.getElementById('result').innerHTML = `
+                    <div>收到原生消息：${message}</div>
+                    <div class="timestamp">时间：${new Date().toLocaleString()}</div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

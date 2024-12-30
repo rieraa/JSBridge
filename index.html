@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSBridge Demo</title>
+</head>
+<body>
+    <h1>JSBridge Demo</h1>
+    <button onclick="callNative()">调用原生方法</button>
+    <div id="result"></div>
+
+    <script>
+        function callNative() {
+            window.webkit.messageHandlers.nativeMethod.postMessage({
+                'message': 'Hello from JavaScript!'
+            });
+        }
+
+        // 提供给原生调用的方法
+        function nativeCallJs(message) {
+            document.getElementById('result').innerHTML = message;
+        }
+    </script>
+</body>
+</html>
